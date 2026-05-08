@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>中国語フラッシュカード</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    background: #F4F1EC;
+    min-height: 100vh;
+    color: #1a1a1a;
+  }
+  .app { max-width: 520px; margin: 0 auto; padding: 1.25rem 1rem 5rem; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 1.5rem; }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #F5EDE9; border-radius: 20px; padding: 6px 16px;
+  }
+  .header-badge span { font-size: 13px; font-weight: 500; color: #B5614A; }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex; background: #EAE6DF; border-radius: 14px;
+    padding: 4px; margin-bottom: 1.5rem; gap: 2px;
+  }
+  .tab-btn {
+    flex: 1; padding: 8px 0; border-radius: 10px; border: none;
+    cursor: pointer; font-size: 13px; background: transparent;
+    color: #888; transition: all 0.15s; font-family: inherit;
+  }
+  .tab-btn.active {
+    background: #fff; color: #B5614A; font-weight: 500;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  /* Mode / Filter buttons */
+  .btn-row { display: flex; gap: 6px; margin-bottom: 10px; }
+  .mode-btn {
+    flex: 1; padding: 9px 4px; border-radius: 10px; cursor: pointer;
+    font-size: 11px; border: 1.5px solid #E0DBD3;
+    background: #fff; color: #888; transition: all 0.15s;
+    font-family: inherit; text-align: center; line-height: 1.4;
+  }
+  .mode-btn .icon { font-size: 16px; display: block; margin-bottom: 2px; }
+  .mode-btn.active { border-color: #B5614A; background: #F5EDE9; color: #B5614A; font-weight: 500; }
+  .filter-btn {
+    flex: 1; padding: 6px 4px; border-radius: 8px; cursor: pointer;
+    font-size: 11px; border: 1.5px solid #E0DBD3;
+    background: #fff; color: #888; font-family: inherit;
+  }
+  .filter-btn.active { border-color: #6B5F8C; background: #EDEAF4; color: #6B5F8C; font-weight: 500; }
+
+  /* Progress */
+  .progress-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .progress-label { font-size: 12px; color: #888; }
+  .streak-badge {
+    font-size: 12px; background: #F5EDE9; color: #B5614A;
+    padding: 2px 10px; border-radius: 10px; font-weight: 500;
+  }
+  .progress-bar-bg {
+    height: 4px; background: #E8E3DA; border-radius: 4px;
+    margin-bottom: 1.25rem; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: #DEB9AD;
+    border-radius: 4px; transition: width 0.3s;
+  }
+
+  /* Card */
+  .card {
+    background: #fff; border: 1.5px solid #E0DBD3; border-radius: 20px;
+    padding: 2.5rem 1.5rem; text-align: center; cursor: pointer;
+    min-height: 210px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    margin-bottom: 1rem; transition: border-color 0.2s, box-shadow 0.2s;
+    user-select: none;
+  }
+  .card.flipped { border-color: #DEB9AD; box-shadow: 0 0 0 4px #F5EDE9; cursor: default; }
+  .card-zh { font-size: 52px; font-weight: 500; letter-spacing: 4px; }
+  .card-ja { font-size: 30px; font-weight: 500; }
+  .card-pinyin { font-size: 16px; color: #6B5F8C; font-weight: 500; }
+  .card-answer-ja { font-size: 26px; font-weight: 500; }
+  .card-hint { font-size: 13px; color: #bbb; }
+  .card-divider { width: 32px; height: 1.5px; background: #DEB9AD; border-radius: 2px; margin: 4px 0; }
+  .audio-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: #EDEAF4; border: 2px solid #C4BCDC;
+    cursor: pointer; font-size: 36px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .audio-circle:active { background: #C4BCDC; }
+  .audio-circle.small { width: 56px; height: 56px; font-size: 26px; }
+  .speak-btn {
+    margin-top: 4px; padding: 6px 18px; border-radius: 20px;
+    border: 1.5px solid #6B5F8C; background: #EDEAF4;
+    cursor: pointer; font-size: 13px; color: #6B5F8C;
+    font-weight: 500; font-family: inherit;
+  }
+
+  /* Mastery buttons */
+  .mastery-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .mastery-btn {
+    flex: 1; padding: 11px; border-radius: 10px;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    font-family: inherit; border: 1.5px solid #E0DBD3;
+    background: #fff; color: #888; transition: all 0.15s;
+  }
+  .mastery-btn.learned { border-color: #3A7D65; background: #3A7D65; color: #fff; }
+  .mastery-btn.unset-active { border-color: #B5614A; background: #B5614A; color: #fff; }
+
+  /* Next button */
+  .next-btn {
+    width: 100%; padding: 15px; border-radius: 14px; border: none;
+    background: #B5614A; color: #fff; cursor: pointer;
+    font-weight: 500; font-size: 16px; letter-spacing: 0.5px;
+    font-family: inherit; transition: opacity 0.15s;
+  }
+  .next-btn:active { opacity: 0.85; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center; padding: 2.5rem 1.5rem;
+    background: #EAE6DF; border-radius: 20px;
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-title { font-weight: 500; margin-bottom: 4px; }
+  .empty-sub { font-size: 13px; color: #888; }
+
+  /* Word list */
+  .add-btn {
+    width: 100%; padding: 11px; border-radius: 12px;
+    border: 1.5px dashed #DEB9AD; background: #F5EDE9;
+    cursor: pointer; font-size: 14px; margin-bottom: 1rem;
+    font-weight: 500; color: #B5614A; font-family: inherit;
+  }
+  .form-box {
+    background: #EDEAF4; border-radius: 14px; padding: 1.1rem;
+    margin-bottom: 1rem; border: 1.5px solid #C4BCDC;
+  }
+  .form-label { font-size: 11px; color: #6B5F8C; display: block; margin-bottom: 3px; font-weight: 500; }
+  .form-input {
+    width: 100%; border-radius: 8px; border: 1px solid #C4BCDC;
+    padding: 7px 10px; font-size: 14px; font-family: inherit;
+    background: #fff; margin-bottom: 8px; outline: none;
+  }
+  .form-input:focus { border-color: #6B5F8C; }
+  .form-row { display: flex; gap: 8px; margin-top: 4px; }
+  .form-cancel {
+    flex: 1; padding: 8px; border-radius: 8px;
+    border: 1px solid #E0DBD3; background: transparent;
+    cursor: pointer; color: #888; font-family: inherit;
+  }
+  .form-save {
+    flex: 2; padding: 8px; border-radius: 8px; border: none;
+    background: #6B5F8C; color: #fff; cursor: pointer;
+    font-weight: 500; font-family: inherit;
+  }
+  .word-card {
+    background: #fff; border: 1px solid #E0DBD3; border-radius: 14px;
+    padding: 12px 14px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .word-info { flex: 1; }
+  .word-zh { font-size: 22px; font-weight: 500; }
+  .word-pinyin { font-size: 13px; color: #6B5F8C; font-weight: 500; margin-left: 6px; }
+  .word-ja { font-size: 13px; color: #888; margin-top: 2px; }
+  .word-acc { font-size: 11px; margin-top: 2px; }
+  .learned-badge {
+    font-size: 11px; background: #E4EEEA; color: #3A7D65;
+    padding: 2px 7px; border-radius: 8px; font-weight: 500; margin-left: 4px;
+  }
+  .icon-btn {
+    padding: 5px 9px; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-family: inherit;
+  }
+  .play-btn { border: 1px solid #C4BCDC; background: #EDEAF4; color: #6B5F8C; }
+  .edit-btn { border: 1px solid #E0DBD3; background: transparent; color: #888; }
+  .del-btn { border: 1px solid #FECACA; background: #FEF2F2; color: #a32d2d; }
+
+  /* Stats */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .stat-card { border-radius: 14px; padding: 14px 16px; border: 1px solid #E0DBD3; }
+  .stat-icon { font-size: 20px; margin-bottom: 4px; }
+  .stat-label { font-size: 11px; font-weight: 500; margin-bottom: 2px; }
+  .stat-val { font-size: 26px; font-weight: 500; }
+  .mode-stats { background: #EAE6DF; border-radius: 14px; padding: 14px; margin-bottom: 1.5rem; }
+  .mode-stats-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; color: #888; }
+  .mode-stat-row { margin-bottom: 10px; }
+  .mode-stat-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .bar-bg { height: 6px; background: #D8D3CB; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; background: #C4BCDC; border-radius: 4px; transition: width 0.4s; }
+  .word-stats-title { font-size: 14px; font-weight: 500; margin-bottom: 10px; color: #888; }
+  .word-stat-row { margin-bottom: 10px; }
+  .word-stat-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+  .reset-btn {
+    margin-top: 1rem; width: 100%; padding: 9px; border-radius: 10px;
+    border: 1px solid #FECACA; background: #FEF2F2; color: #a32d2d;
+    cursor: pointer; font-size: 13px; font-family: inherit;
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+const MODES = [
+  { id: "cn2jp", label: "中国語 → 日本語", icon: "🀄" },
+  { id: "jp2cn", label: "日本語 → 中国語", icon: "🗾" },
+  { id: "audio", label: "音声 → 日本語", icon: "🔊" },
+];
+const TABS = ["学習", "単語帳", "統計"];
+const SAMPLE = [
+  { id: 1, chinese: "你好", pinyin: "nǐ hǎo", japanese: "こんにちは" },
+  { id: 2, chinese: "谢谢", pinyin: "xiè xie", japanese: "ありがとう" },
+  { id: 3, chinese: "再见", pinyin: "zài jiàn", japanese: "さようなら" },
+  { id: 4, chinese: "苹果", pinyin: "píng guǒ", japanese: "りんご" },
+  { id: 5, chinese: "水", pinyin: "shuǐ", japanese: "水" },
+];
+
+function load(key, def) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; }
+}
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+
+let state = {
+  words: load("words", SAMPLE),
+  stats: load("stats", {}),
+  mastery: load("mastery", {}),
+  tab: 0,
+  mode: "cn2jp",
+  filter: "all",
+  deck: [],
+  cardIdx: 0,
+  flipped: false,
+  streak: load("streak", 0),
+  showAdd: false,
+  editId: null,
+  form: { chinese: "", pinyin: "", japanese: "" },
+};
+
+function getMastery(mode, id) { return state.mastery[mode + "_" + id] || "unset"; }
+function setMastery(mode, id, val) {
+  state.mastery[mode + "_" + id] = val;
+  save("mastery", state.mastery);
+}
+function getStats(id) { return state.stats[id] || { correct: 0, wrong: 0 }; }
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function buildDeck() {
+  let pool;
+  if (state.filter === "unlearned") pool = state.words.filter(w => getMastery(state.mode, w.id) !== "learned");
+  else if (state.filter === "review") pool = state.words.filter(w => getMastery(state.mode, w.id) === "learned");
+  else pool = state.words;
+  state.deck = shuffle(pool);
+  state.cardIdx = 0;
+  state.flipped = false;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = "zh-CN"; utt.rate = 0.85;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utt);
+}
+
+function learnedCount(mode) { return state.words.filter(w => getMastery(mode, w.id) === "learned").length; }
+function unlearnedCount(mode) { return state.words.filter(w => getMastery(mode, w.id) !== "learned").length; }
+
+// ===== RENDER =====
+function render() {
+  document.getElementById("app").innerHTML = `
+    <div class="header">
+      <div class="header-badge"><span>🀄 中国語フラッシュカード</span></div>
+    </div>
+    <div class="tab-bar">
+      ${TABS.map((t, i) => `<button class="tab-btn ${state.tab === i ? "active" : ""}" onclick="setTab(${i})">${t}</button>`).join("")}
+    </div>
+    ${state.tab === 0 ? renderStudy() : state.tab === 1 ? renderWordList() : renderStats()}
+  `;
+}
+
+function renderStudy() {
+  const card = state.deck[state.cardIdx];
+  const total = state.deck.length;
+  const learned = learnedCount(state.mode);
+  const unlearned = unlearnedCount(state.mode);
+
+  return `
+    <div class="btn-row">
+      ${MODES.map(m => `
+        <button class="mode-btn ${state.mode === m.id ? "active" : ""}" onclick="setMode('${m.id}')">
+          <span class="icon">${m.icon}</span>${m.label}
+        </button>`).join("")}
+    </div>
+    <div class="btn-row">
+      <button class="filter-btn ${state.filter === "all" ? "active" : ""}" onclick="setFilter('all')">全部 (${state.words.length})</button>
+      <button class="filter-btn ${state.filter === "unlearned" ? "active" : ""}" onclick="setFilter('unlearned')">未習得 (${unlearned})</button>
+      <button class="filter-btn ${state.filter === "review" ? "active" : ""}" onclick="setFilter('review')">復習 (${learned})</button>
+    </div>
+    ${total === 0 ? `
+      <div class="empty-state">
+        <div class="empty-icon">✨</div>
+        <p class="empty-title">${state.filter === "unlearned" ? "未習得の単語がありません！" : state.filter === "review" ? "「覚えた」単語がまだありません" : "単語が登録されていません"}</p>
+        <p class="empty-sub">${state.filter === "unlearned" ? "全部モードで復習しましょう 🎉" : "単語帳タブから追加してください"}</p>
+      </div>` : `
+    <div class="progress-row">
+      <span class="progress-label">${state.cardIdx + 1} / ${total}</span>
+      ${state.streak > 0 ? `<span class="streak-badge">🔥 ${state.streak} 連続</span>` : ""}
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width:${((state.cardIdx + 1) / total) * 100}%"></div>
+    </div>
+    <div class="card ${state.flipped ? "flipped" : ""}" onclick="${!state.flipped ? "flipCard()" : ""}">
+      ${renderCardContent(card)}
+    </div>
+    ${state.flipped ? `
+      <div class="mastery-row">
+        <button class="mastery-btn ${getMastery(state.mode, card.id) === "learned" ? "learned" : ""}"
+          onclick="handleMastery('learned')">✨ 覚えた！</button>
+        <button class="mastery-btn ${getMastery(state.mode, card.id) === "unset" ? "unset-active" : ""}"
+          onclick="handleMastery('unset')">😅 まだ覚えてない</button>
+      </div>
+      <button class="next-btn" onclick="nextCard()">次の単語 →</button>
+    ` : ""}
+  `}`;
+}
+
+function renderCardContent(card) {
+  if (!card) return "";
+  if (!state.flipped) {
+    if (state.mode === "audio") return `
+      <button class="audio-circle" onclick="event.stopPropagation();speak('${card.chinese}')">🔊</button>
+      <span class="card-hint">音声を聞いて、タップして答えを見る</span>`;
+    if (state.mode === "cn2jp") return `
+      <span class="card-zh">${card.chinese}</span>
+      <span class="card-hint">タップして答えを見る</span>`;
+    return `
+      <span class="card-ja">${card.japanese}</span>
+      <span class="card-hint">タップして答えを見る</span>`;
+  }
+  if (state.mode === "audio") return `
+    <button class="audio-circle small" onclick="event.stopPropagation();speak('${card.chinese}')">🔊</button>
+    <span class="card-zh">${card.chinese}</span>
+    <span class="card-pinyin">${card.pinyin}</span>
+    <span class="card-answer-ja">${card.japanese}</span>`;
+  if (state.mode === "cn2jp") return `
+    <span class="card-zh">${card.chinese}</span>
+    <span class="card-pinyin">${card.pinyin}</span>
+    <span class="card-answer-ja">${card.japanese}</span>
+    <button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
+  return `
+    <span class="card-ja">${card.japanese}</span>
+    <div class="card-divider"></div>
+    <span class="card-zh">${card.chinese}</span>
+    <span class="card-pinyin">${card.pinyin}</span>
+    <button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
+}
+
+function renderWordList() {
+  return `
+    <button class="add-btn" onclick="openAdd()">＋ 単語を追加</button>
+    ${state.showAdd ? `
+    <div class="form-box">
+      <label class="form-label">中国語（漢字）</label>
+      <input class="form-input" id="f-zh" value="${state.form.chinese}" placeholder="苹果" oninput="updateForm('chinese',this.value)">
+      <label class="form-label">拼音</label>
+      <input class="form-input" id="f-py" value="${state.form.pinyin}" placeholder="píng guǒ" oninput="updateForm('pinyin',this.value)">
+      <label class="form-label">日本語訳</label>
+      <input class="form-input" id="f-ja" value="${state.form.japanese}" placeholder="りんご" oninput="updateForm('japanese',this.value)">
+      <div class="form-row">
+        <button class="form-cancel" onclick="closeAdd()">キャンセル</button>
+        <button class="form-save" onclick="saveWord()">${state.editId !== null ? "保存" : "追加"}</button>
+      </div>
+    </div>` : ""}
+    ${state.words.length === 0 ? `<p style="text-align:center;color:#888">単語がありません</p>` : ""}
+    ${state.words.map(w => {
+      const s = getStats(w.id);
+      const tot = s.correct + s.wrong;
+      const acc = tot > 0 ? Math.round(s.correct / tot * 100) : null;
+      const learnedModes = MODES.filter(m => getMastery(m.id, w.id) === "learned").map(m => m.icon).join("");
+      return `
+      <div class="word-card">
+        <div class="word-info">
+          <div>
+            <span class="word-zh">${w.chinese}</span>
+            <span class="word-pinyin">${w.pinyin}</span>
+            ${learnedModes ? `<span class="learned-badge">覚えた ${learnedModes}</span>` : ""}
+          </div>
+          <div class="word-ja">${w.japanese}</div>
+          ${acc !== null ? `<div class="word-acc" style="color:${acc >= 70 ? "#3A7D65" : "#B5614A"}">正解率 ${acc}%（${s.correct}/${tot}）</div>` : ""}
+        </div>
+        <button class="icon-btn play-btn" onclick="speak('${w.chinese}')">▶</button>
+        <button class="icon-btn edit-btn" onclick="editWord(${w.id})">編集</button>
+        <button class="icon-btn del-btn" onclick="deleteWord(${w.id})">削除</button>
+      </div>`;
+    }).join("")}
+  `;
+}
+
+function renderStats() {
+  const totalCorrect = Object.values(state.stats).reduce((a, v) => a + (v.correct || 0), 0);
+  const totalWrong = Object.values(state.stats).reduce((a, v) => a + (v.wrong || 0), 0);
+  const total = totalCorrect + totalWrong;
+  const acc = total > 0 ? Math.round(totalCorrect / total * 100) : 0;
+
+  return `
+    <div class="stat-grid">
+      ${[
+        ["📚", "登録単語数", state.words.length, "#F5EDE9", "#B5614A"],
+        ["✨", "総回答数", total, "#EDEAF4", "#6B5F8C"],
+        ["🎯", "正解率", total > 0 ? acc + "%" : "—", "#E4EEEA", "#3A7D65"],
+        ["🔥", "連続正解", state.streak, "#FFF7ED", "#C2410C"],
+      ].map(([icon, label, val, bg, color]) => `
+        <div class="stat-card" style="background:${bg}">
+          <div class="stat-icon">${icon}</div>
+          <div class="stat-label" style="color:${color}">${label}</div>
+          <div class="stat-val" style="color:${color}">${val}</div>
+        </div>`).join("")}
+    </div>
+    <div class="mode-stats">
+      <p class="mode-stats-title">モード別 習得状況</p>
+      ${MODES.map(m => {
+        const learned = learnedCount(m.id);
+        const pct = state.words.length > 0 ? Math.round(learned / state.words.length * 100) : 0;
+        return `
+        <div class="mode-stat-row">
+          <div class="mode-stat-label">
+            <span>${m.icon} ${m.label}</span>
+            <span style="color:#6B5F8C;font-weight:500">${learned} / ${state.words.length}</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join("")}
+    </div>
+    <p class="word-stats-title">単語別 正解率</p>
+    ${state.words.map(w => {
+      const s = getStats(w.id);
+      const tot = s.correct + s.wrong;
+      const pct = tot > 0 ? Math.round(s.correct / tot * 100) : 0;
+      return `
+      <div class="word-stat-row">
+        <div class="word-stat-label">
+          <span>${w.chinese} <span style="color:#888">${w.japanese}</span></span>
+          <span style="color:${tot === 0 ? "#bbb" : pct >= 70 ? "#3A7D65" : "#B5614A"};font-weight:500">
+            ${tot === 0 ? "未挑戦" : pct + "%"}
+          </span>
+        </div>
+        ${tot > 0 ? `<div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${pct >= 70 ? "#3A7D65" : "#B5614A"}"></div></div>` : ""}
+      </div>`;
+    }).join("")}
+    ${total > 0 ? `<button class="reset-btn" onclick="resetStats()">統計をリセット</button>` : ""}
+  `;
+}
+
+// ===== ACTIONS =====
+function setTab(i) { state.tab = i; render(); }
+function setMode(m) { state.mode = m; buildDeck(); render(); }
+function setFilter(f) { state.filter = f; buildDeck(); render(); }
+
+function flipCard() { state.flipped = true; render(); }
+
+function handleMastery(val) {
+  const card = state.deck[state.cardIdx];
+  if (!card) return;
+  setMastery(state.mode, card.id, val);
+  render();
+}
+
+function nextCard() {
+  state.cardIdx++;
+  if (state.cardIdx >= state.deck.length) buildDeck();
+  state.flipped = false;
+  render();
+}
+
+function openAdd() { state.showAdd = true; state.editId = null; state.form = { chinese: "", pinyin: "", japanese: "" }; render(); }
+function closeAdd() { state.showAdd = false; state.editId = null; render(); }
+function updateForm(key, val) { state.form[key] = val; }
+
+function saveWord() {
+  const f = state.form;
+  if (!f.chinese || !f.pinyin || !f.japanese) return;
+  if (state.editId !== null) {
+    state.words = state.words.map(w => w.id === state.editId ? { ...w, ...f } : w);
+    state.editId = null;
+  } else {
+    const newId = Date.now();
+    state.words.push({ id: newId, ...f });
+  }
+  save("words", state.words);
+  state.form = { chinese: "", pinyin: "", japanese: "" };
+  state.showAdd = false;
+  buildDeck();
+  render();
+}
+
+function editWord(id) {
+  const w = state.words.find(w => w.id === id);
+  if (!w) return;
+  state.form = { chinese: w.chinese, pinyin: w.pinyin, japanese: w.japanese };
+  state.editId = id;
+  state.showAdd = true;
+  render();
+}
+
+function deleteWord(id) {
+  state.words = state.words.filter(w => w.id !== id);
+  save("words", state.words);
+  buildDeck();
+  render();
+}
+
+function resetStats() {
+  state.stats = {}; state.streak = 0;
+  save("stats", state.stats); save("streak", state.streak);
+  render();
+}
+
+// Init
+buildDeck();
+render();
+</script>
+</body>
+</html>
