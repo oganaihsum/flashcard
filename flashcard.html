@@ -272,10 +272,8 @@ function renderWordList() {
       <input class="form-input" value="${f.chinese}" placeholder="苹果" oninput="updateForm('chinese',this.value)">
       <label class="form-label">拼音</label>
       <input class="form-input" value="${f.pinyin}" placeholder="píng guǒ" oninput="updateForm('pinyin',this.value)">
-      <label class="form-label">日本語（代表訳）</label>
-      <input class="form-input" value="${f.japanese}" placeholder="りんご" oninput="updateForm('japanese',this.value)">
       <div class="meanings-section">
-        <div class="meanings-title">品詞ごとの意味</div>
+        <div class="meanings-title">意味</div>
         ${(f.meanings || []).map((m, i) => `
           <div class="meaning-row">
             <select class="form-select" style="width:90px;flex-shrink:0" onchange="updateMeaningPos(${i},this.value)">
@@ -349,13 +347,15 @@ function removeMeaning(i) { state.form.meanings.splice(i, 1); render(); }
 
 function saveWord() {
   const f = state.form;
-  if (!f.chinese || !f.pinyin || !f.japanese) return;
+  if (!f.chinese || !f.pinyin) return;
   const meanings = (f.meanings || []).filter(m => m.text.trim() !== "");
+  if (meanings.length === 0) return;
+  const japanese = meanings[0].text;
   if (state.editId !== null) {
-    state.words = state.words.map(w => w.id === state.editId ? { ...w, ...f, meanings } : w);
+    state.words = state.words.map(w => w.id === state.editId ? { ...w, ...f, japanese, meanings } : w);
     state.editId = null;
   } else {
-    state.words.push({ id: Date.now(), ...f, meanings });
+    state.words.push({ id: Date.now(), ...f, japanese, meanings });
   }
   save("words_v2", state.words);
   state.form = newForm();
