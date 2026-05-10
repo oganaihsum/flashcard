@@ -257,7 +257,7 @@ async function fetchExample(word) {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": state.apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5", max_tokens: 300,
+        model: "claude-sonnet-4-6", max_tokens: 300,
         messages: [{ role: "user", content: `以下の中国語単語を使ったHSK4級レベルの自然な例文を1つ作ってください。\n単語：${word.chinese}（${word.japanese}）\nJSON形式のみで返してください：{"zh":"中国語例文","pinyin":"拼音（スペース区切り）","ja":"日本語訳"}` }]
       })
     });
