@@ -10,40 +10,27 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, 'Helvetica Neue', sans-serif; background: #F4F1EC; min-height: 100vh; color: #1a1a1a; }
   .app { max-width: 520px; margin: 0 auto; padding: 1.25rem 1rem 5rem; }
-
   .header { text-align: center; margin-bottom: 1.25rem; }
   .header-badge { display: inline-flex; align-items: center; gap: 8px; background: #F5EDE9; border-radius: 20px; padding: 6px 16px; }
   .header-badge span { font-size: 13px; font-weight: 500; color: #B5614A; }
 
-  /* ボトムナビ */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; max-width: 520px; margin: 0 auto; padding: 8px 1rem 16px; background: #F4F1EC; border-top: 1px solid #E8E3DA; }
   .bottom-nav-inner { display: flex; background: #EAE6DF; border-radius: 14px; padding: 4px; gap: 2px; }
   .bottom-nav-btn { flex: 1; padding: 8px 0; border-radius: 10px; border: none; cursor: pointer; font-size: 13px; background: transparent; color: #888; transition: all 0.15s; font-family: inherit; }
   .bottom-nav-btn.active { background: #fff; color: #B5614A; font-weight: 500; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
-  /* モードグリッド（丸型・枠＋白背景・テキスト常時表示） */
   .mode-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-  .mode-row { display: flex; gap: 8px; justify-content: space-between; }
-  .mode-btn {
-    cursor: pointer;
-    border: 1.5px solid #E0DBD3; background: #fff;
-    font-family: inherit; text-align: center;
-    transition: all 0.15s;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    height: 62px; flex: 1; border-radius: 31px;
-    gap: 3px;
-  }
+  .mode-row { display: flex; gap: 8px; }
+  .mode-btn { flex: 1; cursor: pointer; border: 1.5px solid #E0DBD3; background: #fff; font-family: inherit; text-align: center; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 62px; border-radius: 31px; gap: 3px; }
   .mode-btn .m-icon { font-size: 20px; line-height: 1; }
   .mode-btn .m-label { font-size: 10px; font-weight: 500; color: #aaa; height: 13px; }
   .mode-btn.active { border-color: #B5614A; background: #F5EDE9; }
   .mode-btn.active .m-label { color: #B5614A; }
 
-  /* サブメニュー */
   .sub-menu { display: flex; gap: 4px; margin-bottom: 12px; background: #EAE6DF; border-radius: 12px; padding: 3px; }
   .sub-btn { flex: 1; padding: 7px 4px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px; background: transparent; color: #888; font-family: inherit; transition: all 0.15s; }
   .sub-btn.active { background: #fff; color: #B5614A; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
-  /* フィルター */
   .btn-row { display: flex; gap: 6px; margin-bottom: 10px; }
   .filter-btn { flex: 1; padding: 6px 4px; border-radius: 8px; cursor: pointer; font-size: 11px; border: 1.5px solid #E0DBD3; background: #fff; color: #888; font-family: inherit; transition: all 0.15s; }
   .filter-btn.active { border-color: #6B5F8C; background: #EDEAF4; color: #6B5F8C; font-weight: 500; }
@@ -68,6 +55,7 @@
   .card-meaning-text { font-size: 16px; font-weight: 500; color: #1a1a1a; text-align: left; }
   .card-classifier { font-size: 52px; font-weight: 500; color: #B5614A; letter-spacing: 4px; }
   .card-classifier-label { font-size: 12px; color: #888; }
+  .card-memo { font-size: 12px; color: #888; background: #F4F1EC; border-radius: 8px; padding: 6px 10px; width: 100%; max-width: 280px; text-align: left; line-height: 1.5; }
 
   .audio-circle { width: 72px; height: 72px; border-radius: 50%; background: #EDEAF4; border: 2px solid #C4BCDC; cursor: pointer; font-size: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .audio-circle:active { background: #C4BCDC; }
@@ -117,7 +105,12 @@
   .apikey-clear { font-size: 11px; color: #aaa; cursor: pointer; text-decoration: underline; display: block; text-align: right; margin-top: 6px; }
 
   .wordlist-section-title { font-size: 13px; font-weight: 500; color: #888; margin: 1.25rem 0 8px; }
-  .add-btn { width: 100%; padding: 11px; border-radius: 12px; border: 1.5px dashed #DEB9AD; background: #F5EDE9; cursor: pointer; font-size: 14px; margin-bottom: 1rem; font-weight: 500; color: #B5614A; font-family: inherit; }
+  .wordlist-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 1rem; }
+  .add-btn { padding: 11px 14px; border-radius: 12px; border: 1.5px dashed #DEB9AD; background: #F5EDE9; cursor: pointer; font-size: 14px; font-weight: 500; color: #B5614A; font-family: inherit; white-space: nowrap; }
+  .add-btn-full { width: 100%; padding: 11px; border-radius: 12px; border: 1.5px dashed #DEB9AD; background: #F5EDE9; cursor: pointer; font-size: 14px; font-weight: 500; color: #B5614A; font-family: inherit; margin-bottom: 1rem; }
+  .search-bar { flex: 1; padding: 10px 14px; border-radius: 12px; border: 1.5px solid #E0DBD3; font-size: 14px; font-family: inherit; background: #fff; outline: none; }
+  .search-bar:focus { border-color: #B5614A; }
+
   .form-box { background: #EDEAF4; border-radius: 14px; padding: 1.1rem; margin-bottom: 1rem; border: 1.5px solid #C4BCDC; }
   .form-label { font-size: 11px; color: #6B5F8C; display: block; margin-bottom: 3px; font-weight: 500; margin-top: 8px; }
   .form-label:first-child { margin-top: 0; }
@@ -135,6 +128,7 @@
   .form-row { display: flex; gap: 8px; margin-top: 12px; }
   .form-cancel { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #E0DBD3; background: transparent; cursor: pointer; color: #888; font-family: inherit; }
   .form-save { flex: 2; padding: 8px; border-radius: 8px; border: none; background: #6B5F8C; color: #fff; cursor: pointer; font-weight: 500; font-family: inherit; }
+
   .word-card { background: #fff; border: 1px solid #E0DBD3; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
   .word-info { flex: 1; }
   .word-top { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
@@ -145,6 +139,7 @@
   .word-meaning-row { display: flex; align-items: baseline; gap: 6px; }
   .word-pos-badge { font-size: 10px; padding: 1px 6px; border-radius: 5px; background: #EDEAF4; color: #6B5F8C; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
   .word-meaning-text { font-size: 13px; color: #444; }
+  .word-memo { font-size: 12px; color: #888; margin-top: 4px; line-height: 1.5; }
   .learned-badge { font-size: 10px; background: #E4EEEA; color: #3A7D65; padding: 2px 7px; border-radius: 8px; font-weight: 500; }
   .word-actions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
   .icon-btn { padding: 5px 9px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: inherit; white-space: nowrap; }
@@ -181,11 +176,11 @@ const EXAMPLE_SUBS = [
   { id: "audio", label: "音声" },
 ];
 const SAMPLE = [
-  { id: 1, chinese: "你好",  pinyin: "nǐ hǎo",   japanese: "こんにちは", meanings: [{ pos: "感動詞", text: "こんにちは" }], classifier: "" },
-  { id: 2, chinese: "喜欢",  pinyin: "xǐ huān",  japanese: "好む",      meanings: [{ pos: "動詞",   text: "好む・好きだ" }], classifier: "" },
-  { id: 3, chinese: "兔子",  pinyin: "tù zi",    japanese: "うさぎ",    meanings: [{ pos: "名詞",   text: "うさぎ" }],      classifier: "只" },
-  { id: 4, chinese: "苹果",  pinyin: "píng guǒ", japanese: "りんご",    meanings: [{ pos: "名詞",   text: "りんご" }],      classifier: "个" },
-  { id: 5, chinese: "书",    pinyin: "shū",       japanese: "本",        meanings: [{ pos: "名詞",   text: "本・書籍" }],    classifier: "本" },
+  { id: 1, chinese: "你好",  pinyin: "nǐ hǎo",   japanese: "こんにちは", meanings: [{ pos: "感動詞", text: "こんにちは" }], classifier: "", memo: "" },
+  { id: 2, chinese: "喜欢",  pinyin: "xǐ huān",  japanese: "好む",      meanings: [{ pos: "動詞",   text: "好む・好きだ" }], classifier: "", memo: "" },
+  { id: 3, chinese: "兔子",  pinyin: "tù zi",    japanese: "うさぎ",    meanings: [{ pos: "名詞",   text: "うさぎ" }],      classifier: "只", memo: "" },
+  { id: 4, chinese: "苹果",  pinyin: "píng guǒ", japanese: "りんご",    meanings: [{ pos: "名詞",   text: "りんご" }],      classifier: "个", memo: "" },
+  { id: 5, chinese: "书",    pinyin: "shū",       japanese: "本",        meanings: [{ pos: "名詞",   text: "本・書籍" }],    classifier: "本", memo: "" },
 ];
 
 function load(key, def) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } }
@@ -197,8 +192,7 @@ let state = {
   mastery:         load("mastery", {}),
   exampleCache:    load("exampleCache", {}),
   tab: 0, mode: "cn2jp", filter: "unlearned",
-  exampleSub: "ja",
-  exampleRevealed: false,
+  exampleSub: "ja", exampleRevealed: false,
   deck: [], cardIdx: 0, flipped: false,
   streak: load("streak", 0),
   showAdd: false, editId: null, form: newForm(),
@@ -207,9 +201,10 @@ let state = {
   exampleData: null,
   apiKey: load("apiKey", ""),
   apiKeyInput: "",
+  searchQuery: "",
 };
 
-function newForm() { return { chinese: "", pinyin: "", japanese: "", meanings: [{ pos: "名詞", text: "" }], classifier: "" }; }
+function newForm() { return { chinese: "", pinyin: "", japanese: "", meanings: [{ pos: "名詞", text: "" }], classifier: "", memo: "" }; }
 function getMastery(mode, id) { return state.mastery[mode + "_" + id] || "unset"; }
 function setMastery(mode, id, val) { state.mastery[mode + "_" + id] = val; save("mastery", state.mastery); }
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
@@ -368,7 +363,6 @@ function renderExampleMode(card) {
   if (!card) return "";
   const d = state.exampleData;
   const sub = state.exampleSub;
-
   if (!state.apiKey) return `
     <div class="apikey-box">
       <div class="apikey-title">🔑 Anthropic APIキーを入力</div>
@@ -376,7 +370,6 @@ function renderExampleMode(card) {
       <input class="apikey-input" type="password" placeholder="sk-ant-..." oninput="state.apiKeyInput=this.value" onkeydown="if(event.key==='Enter')saveApiKey()">
       <button class="apikey-save" onclick="saveApiKey()">保存して始める</button>
     </div>`;
-
   if (!state.flipped) {
     if (sub === "audio") return `
       <div class="card" style="cursor:default">
@@ -393,39 +386,29 @@ function renderExampleMode(card) {
         ${d && d.zh ? `<span class="example-zh">${d.zh}</span>` : `<span class="card-hint">タップして例文を生成</span>`}
       </div>`;
   }
-
   if (d === "loading") return `
     <div class="card flipped"><div class="loading-box"><div class="spinner"></div><span>例文を生成中…</span></div></div>
     <button class="next-btn" onclick="nextCard()">次の単語 →</button>`;
   if (d === "error" || !d || !d.zh) return `
     <div class="card flipped"><span style="color:#B5614A;font-size:14px">生成に失敗しました。</span></div>
     <button class="next-btn" onclick="nextCard()">次の単語 →</button>`;
-
   let back = "";
   if (sub === "audio") {
-    back = `
-      <button class="audio-circle small" onclick="event.stopPropagation();speak('${d.zh.replace(/'/g,"\\'")}')">🔊</button>
-      <span class="example-ja">${d.ja}</span>
-      <div class="card-divider"></div>
-      <span class="example-zh">${d.zh}</span>
-      <span class="example-pinyin">${d.pinyin}</span>`;
+    back = `<button class="audio-circle small" onclick="event.stopPropagation();speak('${d.zh.replace(/'/g,"\\'")}')">🔊</button>
+      <span class="example-ja">${d.ja}</span><div class="card-divider"></div>
+      <span class="example-zh">${d.zh}</span><span class="example-pinyin">${d.pinyin}</span>`;
   } else if (sub === "ja") {
-    back = `
-      <span class="example-ja">${d.ja}</span>
-      <div class="card-divider"></div>
-      <span class="example-zh">${d.zh}</span>
-      <span class="example-pinyin">${d.pinyin}</span>
+    back = `<span class="example-ja">${d.ja}</span><div class="card-divider"></div>
+      <span class="example-zh">${d.zh}</span><span class="example-pinyin">${d.pinyin}</span>
       <button class="speak-btn" onclick="event.stopPropagation();speak('${d.zh.replace(/'/g,"\\'")}')">▶ 発音を聞く</button>`;
   } else {
-    back = `
-      <span class="example-zh">${d.zh}</span>
+    back = `<span class="example-zh">${d.zh}</span>
       <button class="speak-btn" onclick="event.stopPropagation();speak('${d.zh.replace(/'/g,"\\'")}')">▶ 発音を聞く</button>
       ${state.exampleRevealed
         ? `<div class="card-divider"></div><span class="example-pinyin">${d.pinyin}</span><span class="example-ja">${d.ja}</span>`
         : `<button class="reveal-btn" onclick="event.stopPropagation();state.exampleRevealed=true;render()">拼音・日本語を見る</button>`}`;
   }
-  return `
-    <div class="card flipped" style="gap:12px">${back}</div>
+  return `<div class="card flipped" style="gap:12px">${back}</div>
     <button class="next-btn" onclick="nextCard()">次の単語 →</button>`;
 }
 
@@ -446,17 +429,26 @@ function renderCardContent(card) {
     if (state.mode === "cn2jp") return `<span class="card-zh">${card.chinese}</span><span class="card-hint">タップして答えを見る</span>`;
     return `<span class="card-ja">${card.japanese}</span><span class="card-hint">タップして答えを見る</span>`;
   }
-  if (state.mode === "audio") return `<button class="audio-circle small" onclick="event.stopPropagation();speak('${card.chinese}')">🔊</button><span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${hm?renderMeanings(card.meanings):`<span style="font-size:22px;font-weight:500">${card.japanese}</span>`}`;
-  if (state.mode === "cn2jp") return `<span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${hm?renderMeanings(card.meanings):`<span style="font-size:22px;font-weight:500">${card.japanese}</span>`}<button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
-  return `<span class="card-ja">${card.japanese}</span><div class="card-divider"></div><span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span><button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
+  if (state.mode === "audio") return `<button class="audio-circle small" onclick="event.stopPropagation();speak('${card.chinese}')">🔊</button><span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${hm?renderMeanings(card.meanings):`<span style="font-size:22px;font-weight:500">${card.japanese}</span>`}${card.memo?`<span class="card-memo">${card.memo}</span>`:""}`;
+  if (state.mode === "cn2jp") return `<span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${hm?renderMeanings(card.meanings):`<span style="font-size:22px;font-weight:500">${card.japanese}</span>`}${card.memo?`<span class="card-memo">${card.memo}</span>`:""}<button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
+  return `<span class="card-ja">${card.japanese}</span><div class="card-divider"></div><span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${card.memo?`<span class="card-memo">${card.memo}</span>`:""}<button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
 }
 
 function renderWordList() {
   const f = state.form;
+  const q = state.searchQuery.trim().toLowerCase();
+  const filtered = [...state.words].reverse().filter(w => {
+    if (!q) return true;
+    return w.chinese.includes(q) || w.pinyin.toLowerCase().includes(q) ||
+      w.japanese.includes(q) || (w.meanings||[]).some(m => m.text.includes(q)) || (w.memo||"").includes(q);
+  });
   return `
     <div class="header"><div class="header-badge"><span>📝 単語帳</span></div></div>
     <div class="wordlist-section-title" style="margin-top:0">単語</div>
-    <button class="add-btn" onclick="openAdd()">＋ 単語を追加</button>
+    <div class="wordlist-toolbar">
+      <button class="add-btn" onclick="openAdd()">＋ 追加</button>
+      <input class="search-bar" type="search" placeholder="🔍 漢字・拼音・日本語で検索" value="${state.searchQuery}" oninput="state.searchQuery=this.value;render()">
+    </div>
     ${state.showAdd ? `
     <div class="form-box">
       <label class="form-label">中国語（漢字）</label>
@@ -477,13 +469,15 @@ function renderWordList() {
       </div>
       <label class="form-label-opt">量詞</label>
       <input class="form-input" value="${f.classifier||""}" placeholder="只・个・本 など" oninput="updateForm('classifier',this.value)">
+      <label class="form-label-opt">メモ</label>
+      <textarea class="form-input" rows="2" placeholder="例文・補足・使い方など" oninput="updateForm('memo',this.value)" style="resize:vertical;line-height:1.5">${f.memo||""}</textarea>
       <div class="form-row">
         <button class="form-cancel" onclick="closeAdd()">キャンセル</button>
         <button class="form-save" onclick="saveWord()">${state.editId!==null?"保存":"追加"}</button>
       </div>
     </div>` : ""}
-    ${state.words.length===0?`<p style="text-align:center;color:#888;margin-bottom:1rem">単語がありません</p>`:""}
-    ${state.words.map(w => {
+    ${filtered.length===0 ? `<p style="text-align:center;color:#888;margin-bottom:1rem">${q?"該当する単語がありません":"単語がありません"}</p>` : ""}
+    ${filtered.map(w => {
       const hm = w.meanings && w.meanings.length > 0;
       const lm = ALL_MODES.filter(m=>!["classifier","pinyin","example"].includes(m.id)&&getMastery(m.id,w.id)==="learned").map(m=>m.icon).join("");
       return `
@@ -496,6 +490,7 @@ function renderWordList() {
             ${lm?`<span class="learned-badge">覚えた ${lm}</span>`:""}
           </div>
           ${hm?`<div class="word-meanings">${w.meanings.map(m=>`<div class="word-meaning-row"><span class="word-pos-badge">${m.pos}</span><span class="word-meaning-text">${m.text}</span></div>`).join("")}</div>`:`<div style="font-size:13px;color:#888;margin-top:3px">${w.japanese}</div>`}
+          ${w.memo?`<div class="word-memo">${w.memo}</div>`:""}
         </div>
         <div class="word-actions">
           <button class="icon-btn play-btn" onclick="speak('${w.chinese}')">▶</button>
@@ -505,7 +500,7 @@ function renderWordList() {
       </div>`;
     }).join("")}
     <div class="wordlist-section-title" style="margin-top:1.5rem">量詞</div>
-    <button class="add-btn" onclick="openCfAdd()">＋ 量詞を追加</button>
+    <button class="add-btn-full" onclick="openCfAdd()">＋ 量詞を追加</button>
     ${state.showCfAdd ? `
     <div class="form-box">
       <label class="form-label">量詞</label>
@@ -535,24 +530,20 @@ function setFilter(f) { state.filter=f; buildDeck(); render(); }
 function setExampleSub(s) { state.exampleSub=s; state.flipped=false; state.exampleRevealed=false; state.exampleData=null; render(); }
 function flipCard() { state.flipped=true; render(); }
 function handleAudioExamplePlay() {
-  const card = state.deck[state.cardIdx]; if (!card) return;
-  if (state.exampleCache[card.chinese]) {
-    speak(state.exampleCache[card.chinese].zh);
-    state.exampleData = state.exampleCache[card.chinese]; render();
-  } else {
-    fetchExample(card).then(() => { if (state.exampleData && state.exampleData.zh) speak(state.exampleData.zh); });
-  }
+  const card=state.deck[state.cardIdx]; if(!card) return;
+  if(state.exampleCache[card.chinese]) { speak(state.exampleCache[card.chinese].zh); state.exampleData=state.exampleCache[card.chinese]; render(); }
+  else { fetchExample(card).then(()=>{ if(state.exampleData&&state.exampleData.zh) speak(state.exampleData.zh); }); }
 }
 function showExampleAnswer() {
-  const card = state.deck[state.cardIdx]; if (!card) return;
-  state.flipped = true;
-  if (state.exampleCache[card.chinese]) { state.exampleData = state.exampleCache[card.chinese]; render(); }
+  const card=state.deck[state.cardIdx]; if(!card) return;
+  state.flipped=true;
+  if(state.exampleCache[card.chinese]) { state.exampleData=state.exampleCache[card.chinese]; render(); }
   else fetchExample(card);
 }
 function flipAndFetchExample() {
-  state.flipped = true;
-  const card = state.deck[state.cardIdx]; if (!card) return;
-  if (state.exampleCache[card.chinese]) { state.exampleData = state.exampleCache[card.chinese]; render(); }
+  state.flipped=true;
+  const card=state.deck[state.cardIdx]; if(!card) return;
+  if(state.exampleCache[card.chinese]) { state.exampleData=state.exampleCache[card.chinese]; render(); }
   else fetchExample(card);
 }
 function handleMastery(val) { const card=state.deck[state.cardIdx]; if(!card)return; setMastery(state.mode,card.id,val); render(); }
@@ -578,10 +569,10 @@ function clearApiKey() {
 }
 function openCfAdd() { state.showCfAdd=true; state.cfForm={character:"",pinyin:""}; render(); }
 function saveClassifierWord() {
-  const { character, pinyin } = state.cfForm;
+  const {character,pinyin}=state.cfForm;
   if(!character.trim()||!pinyin.trim()) return;
-  state.classifierWords.push({ id: Date.now(), character: character.trim(), pinyin: pinyin.trim() });
-  save("classifierWords", state.classifierWords);
+  state.classifierWords.push({id:Date.now(),character:character.trim(),pinyin:pinyin.trim()});
+  save("classifierWords",state.classifierWords);
   state.showCfAdd=false; state.cfForm={character:"",pinyin:""}; buildDeck(); render();
 }
 function deleteClassifierWord(id) {
@@ -603,14 +594,15 @@ function saveWord() {
   if(!meanings.length) return;
   const japanese=meanings[0].text;
   const classifier=(f.classifier||"").trim();
-  if(state.editId!==null) { state.words=state.words.map(w=>w.id===state.editId?{...w,...f,japanese,meanings,classifier}:w); state.editId=null; }
-  else { state.words.push({id:Date.now(),...f,japanese,meanings,classifier}); }
+  const memo=(f.memo||"").trim();
+  if(state.editId!==null) { state.words=state.words.map(w=>w.id===state.editId?{...w,...f,japanese,meanings,classifier,memo}:w); state.editId=null; }
+  else { state.words.push({id:Date.now(),...f,japanese,meanings,classifier,memo}); }
   save("words_v2",state.words);
   state.form=newForm(); state.showAdd=false; buildDeck(); render();
 }
 function editWord(id) {
   const w=state.words.find(w=>w.id===id); if(!w)return;
-  state.form={chinese:w.chinese,pinyin:w.pinyin,japanese:w.japanese,meanings:w.meanings?[...w.meanings.map(m=>({...m}))]:[],classifier:w.classifier||""};
+  state.form={chinese:w.chinese,pinyin:w.pinyin,japanese:w.japanese,meanings:w.meanings?[...w.meanings.map(m=>({...m}))]:[],classifier:w.classifier||"",memo:w.memo||""};
   state.editId=id; state.showAdd=true; render();
 }
 function deleteWord(id) {
