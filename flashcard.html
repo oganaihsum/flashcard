@@ -45,8 +45,10 @@
   .card.flipped { border-color: #DEB9AD; box-shadow: 0 0 0 4px #F5EDE9; }
   .card.clickable { cursor: pointer; }
   .card-zh { font-size: 52px; font-weight: 500; letter-spacing: 4px; }
+  .card-chengyu { font-size: 44px; font-weight: 500; letter-spacing: 6px; }
   .card-ja { font-size: 26px; font-weight: 500; line-height: 1.4; }
   .card-pinyin { font-size: 15px; color: #6B5F8C; font-weight: 500; }
+  .card-meaning { font-size: 16px; line-height: 1.6; color: #444; max-width: 300px; }
   .card-hint { font-size: 13px; color: #bbb; }
   .card-divider { width: 32px; height: 1.5px; background: #DEB9AD; border-radius: 2px; margin: 4px 0; }
   .card-meanings { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 280px; }
@@ -104,7 +106,6 @@
   .apikey-save { width: 100%; padding: 9px; border-radius: 8px; border: none; background: #6B5F8C; color: #fff; cursor: pointer; font-weight: 500; font-family: inherit; }
   .apikey-clear { font-size: 11px; color: #aaa; cursor: pointer; text-decoration: underline; display: block; text-align: right; margin-top: 6px; }
 
-  .wordlist-section-title { font-size: 13px; font-weight: 500; color: #888; margin: 1.25rem 0 8px; }
   .wordlist-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 1rem; }
   .add-btn { padding: 11px 14px; border-radius: 12px; border: 1.5px dashed #DEB9AD; background: #F5EDE9; cursor: pointer; font-size: 14px; font-weight: 500; color: #B5614A; font-family: inherit; white-space: nowrap; }
   .add-btn-full { width: 100%; padding: 11px; border-radius: 12px; border: 1.5px dashed #DEB9AD; background: #F5EDE9; cursor: pointer; font-size: 14px; font-weight: 500; color: #B5614A; font-family: inherit; margin-bottom: 1rem; }
@@ -150,6 +151,10 @@
   .cf-char { font-size: 22px; font-weight: 500; }
   .cf-pinyin { font-size: 13px; color: #6B5F8C; font-weight: 500; }
   .cf-badge { font-size: 10px; background: #EDEAF4; color: #6B5F8C; padding: 1px 6px; border-radius: 5px; font-weight: 500; margin-left: 2px; }
+  .cy-card { background: #fff; border: 1px solid #E0DBD3; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+  .cy-zh { font-size: 20px; font-weight: 500; letter-spacing: 2px; }
+  .cy-pinyin { font-size: 12px; color: #6B5F8C; font-weight: 500; margin-top: 2px; }
+  .cy-meaning { font-size: 13px; color: #444; margin-top: 3px; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -158,14 +163,14 @@
 <script>
 const MODE_ROWS = [
   [
-    { id: "cn2jp",      label: "中→日",  icon: "🀄" },
-    { id: "jp2cn",      label: "日→中",  icon: "🗾" },
-    { id: "audio",      label: "音声",   icon: "🔊" },
+    { id: "cn2jp",      label: "漢字",  icon: "🀄" },
+    { id: "audio",      label: "音声",  icon: "🔊" },
+    { id: "pinyin",     label: "拼音",  icon: "🔤" },
   ],
   [
-    { id: "pinyin",     label: "拼音",   icon: "🔤" },
-    { id: "classifier", label: "量詞",   icon: "🔢" },
-    { id: "example",    label: "例文",   icon: "💬" },
+    { id: "chengyu",    label: "成語",  icon: "📜" },
+    { id: "classifier", label: "量詞",  icon: "🔢" },
+    { id: "example",    label: "例文",  icon: "💬" },
   ],
 ];
 const ALL_MODES = MODE_ROWS.flat();
@@ -182,6 +187,10 @@ const SAMPLE = [
   { id: 4, chinese: "苹果",  pinyin: "píng guǒ", japanese: "りんご",    meanings: [{ pos: "名詞",   text: "りんご" }],      classifier: "个", memo: "" },
   { id: 5, chinese: "书",    pinyin: "shū",       japanese: "本",        meanings: [{ pos: "名詞",   text: "本・書籍" }],    classifier: "本", memo: "" },
 ];
+const SAMPLE_CY = [
+  { id: 101, chinese: "一帆风顺", pinyin: "yī fān fēng shùn", meaning: "万事順調、順風満帆" },
+  { id: 102, chinese: "半途而废", pinyin: "bàn tú ér fèi",    meaning: "物事を途中で投げ出す" },
+];
 
 function load(key, def) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } }
 function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
@@ -189,6 +198,7 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 let state = {
   words:           load("words_v2", SAMPLE),
   classifierWords: load("classifierWords", []),
+  chengyuWords:    load("chengyuWords", SAMPLE_CY),
   mastery:         load("mastery", {}),
   exampleCache:    load("exampleCache", {}),
   tab: 0, mode: "cn2jp", filter: "unlearned",
@@ -196,7 +206,9 @@ let state = {
   deck: [], cardIdx: 0, flipped: false,
   streak: load("streak", 0),
   showAdd: false, editId: null, form: newForm(),
+  wordlistTab: "words",
   showCfAdd: false, cfForm: { character: "", pinyin: "" },
+  showCyAdd: false, cyEditId: null, cyForm: { chinese: "", pinyin: "", meaning: "" },
   pinyinInput: "", pinyinResult: null,
   exampleData: null,
   apiKey: load("apiKey", ""),
@@ -220,6 +232,8 @@ function buildDeck() {
     const fromCf = state.classifierWords
       .map(c => ({ id: "c_"+c.id, chinese: c.character, pinyin: c.pinyin, classifier: c.character }));
     pool = [...fromWords, ...fromCf];
+  } else if (state.mode === "chengyu") {
+    pool = [...state.chengyuWords];
   } else if (state.mode === "pinyin" || state.mode === "example") {
     pool = [...state.words];
   } else if (state.filter === "unlearned") {
@@ -284,7 +298,8 @@ function renderStudy() {
   const isClassifier = state.mode === "classifier";
   const isPinyin     = state.mode === "pinyin";
   const isExample    = state.mode === "example";
-  const showFilter   = !isClassifier && !isPinyin && !isExample;
+  const isChengyu    = state.mode === "chengyu";
+  const showFilter   = !isClassifier && !isPinyin && !isExample && !isChengyu;
   return `
     <div class="header"><div class="header-badge"><span>🀄 中国語フラッシュカード</span></div></div>
     <div class="mode-grid">
@@ -309,17 +324,41 @@ function renderStudy() {
     </div>` : ""}
     ${total === 0 ? `
       <div class="empty-state">
-        <div class="empty-icon">${isClassifier?"🔢":"✨"}</div>
-        <p class="empty-title">${isClassifier?"量詞が登録された単語がありません":state.filter==="unlearned"?"未習得の単語がありません！":state.filter==="review"?"「覚えた」単語がまだありません":"単語が登録されていません"}</p>
-        <p class="empty-sub">${isClassifier?"単語帳タブで登録してください":state.filter==="unlearned"?"全部モードで復習しましょう 🎉":"単語帳タブから追加してください"}</p>
+        <div class="empty-icon">${isChengyu?"📜":isClassifier?"🔢":"✨"}</div>
+        <p class="empty-title">${isChengyu?"成語が登録されていません":isClassifier?"量詞が登録された単語がありません":state.filter==="unlearned"?"未習得の単語がありません！":state.filter==="review"?"「覚えた」単語がまだありません":"単語が登録されていません"}</p>
+        <p class="empty-sub">${isChengyu?"単語帳タブから成語を追加してください":isClassifier?"単語帳タブで登録してください":state.filter==="unlearned"?"全部モードで復習しましょう 🎉":"単語帳タブから追加してください"}</p>
       </div>` : `
     <div class="progress-row">
       <span class="progress-label">${state.cardIdx+1} / ${total}</span>
       ${state.streak > 0 ? `<span class="streak-badge">🔥 ${state.streak} 連続</span>` : ""}
     </div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${((state.cardIdx+1)/total)*100}%"></div></div>
-    ${isPinyin ? renderPinyinMode(card) : isExample ? renderExampleMode(card) : renderFlipMode(card)}
+    ${isPinyin ? renderPinyinMode(card) : isExample ? renderExampleMode(card) : isChengyu ? renderChengyuMode(card) : renderFlipMode(card)}
     `}`;
+}
+
+function renderChengyuMode(card) {
+  if (!card) return "";
+  return `
+    <div class="card ${state.flipped?"flipped":"clickable"}" onclick="${!state.flipped?"flipCard()":""}">
+      ${!state.flipped ? `
+        <span class="card-chengyu">${card.chinese}</span>
+        <span class="card-hint">タップして意味を見る</span>
+      ` : `
+        <span class="card-chengyu">${card.chinese}</span>
+        <span class="card-pinyin">${card.pinyin}</span>
+        <div class="card-divider"></div>
+        <span class="card-meaning">${card.meaning}</span>
+        <button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>
+      `}
+    </div>
+    ${state.flipped ? `
+      <div class="mastery-row">
+        <button class="mastery-btn ${getMastery("chengyu",card.id)==="learned"?"learned":""}" onclick="handleMastery('learned')">✨ 覚えた！</button>
+        <button class="mastery-btn ${getMastery("chengyu",card.id)==="unset"?"unset-active":""}" onclick="handleMastery('unset')">😅 まだ覚えてない</button>
+      </div>
+      <button class="next-btn" onclick="nextCard()">次の単語 →</button>
+    ` : ""}`;
 }
 
 function renderFlipMode(card) {
@@ -426,15 +465,14 @@ function renderCardContent(card) {
   }
   if (!state.flipped) {
     if (state.mode === "audio") return `<button class="audio-circle" onclick="event.stopPropagation();speak('${card.chinese}')">🔊</button><span class="card-hint">音声を聞いて、タップして答えを見る</span>`;
-    if (state.mode === "cn2jp") return `<span class="card-zh">${card.chinese}</span><span class="card-hint">タップして答えを見る</span>`;
-    return `<span class="card-ja">${card.japanese}</span><span class="card-hint">タップして答えを見る</span>`;
+    return `<span class="card-zh">${card.chinese}</span><span class="card-hint">タップして答えを見る</span>`;
   }
   if (state.mode === "audio") return `<button class="audio-circle small" onclick="event.stopPropagation();speak('${card.chinese}')">🔊</button><span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${hm?renderMeanings(card.meanings):`<span style="font-size:22px;font-weight:500">${card.japanese}</span>`}${card.memo?`<span class="card-memo">${card.memo}</span>`:""}`;
-  if (state.mode === "cn2jp") return `<span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${hm?renderMeanings(card.meanings):`<span style="font-size:22px;font-weight:500">${card.japanese}</span>`}${card.memo?`<span class="card-memo">${card.memo}</span>`:""}<button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
-  return `<span class="card-ja">${card.japanese}</span><div class="card-divider"></div><span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${card.memo?`<span class="card-memo">${card.memo}</span>`:""}<button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
+  return `<span class="card-zh">${card.chinese}</span><span class="card-pinyin">${card.pinyin}</span>${hm?renderMeanings(card.meanings):`<span style="font-size:22px;font-weight:500">${card.japanese}</span>`}${card.memo?`<span class="card-memo">${card.memo}</span>`:""}<button class="speak-btn" onclick="event.stopPropagation();speak('${card.chinese}')">▶ 発音を聞く</button>`;
 }
 
 function renderWordList() {
+  const wt = state.wordlistTab;
   const f = state.form;
   const q = state.searchQuery.trim().toLowerCase();
   const filtered = [...state.words].reverse().filter(w => {
@@ -442,84 +480,125 @@ function renderWordList() {
     return w.chinese.includes(q) || w.pinyin.toLowerCase().includes(q) ||
       w.japanese.includes(q) || (w.meanings||[]).some(m => m.text.includes(q)) || (w.memo||"").includes(q);
   });
+  const cy = state.cyForm;
   return `
     <div class="header"><div class="header-badge"><span>📝 単語帳</span></div></div>
-    <div class="wordlist-section-title" style="margin-top:0">単語</div>
-    <div class="wordlist-toolbar">
-      <button class="add-btn" onclick="openAdd()">＋ 追加</button>
-      <input class="search-bar" type="search" placeholder="🔍 漢字・拼音・日本語で検索" value="${state.searchQuery}" oninput="state.searchQuery=this.value;render()">
+    <div class="sub-menu" style="margin-bottom:1rem">
+      <button class="sub-btn ${wt==="words"?"active":""}" onclick="state.wordlistTab='words';render()">単語</button>
+      <button class="sub-btn ${wt==="chengyu"?"active":""}" onclick="state.wordlistTab='chengyu';render()">成語</button>
+      <button class="sub-btn ${wt==="classifier"?"active":""}" onclick="state.wordlistTab='classifier';render()">量詞</button>
     </div>
-    ${state.showAdd ? `
-    <div class="form-box">
-      <label class="form-label">中国語（漢字）</label>
-      <input class="form-input" value="${f.chinese}" placeholder="兔子" oninput="updateForm('chinese',this.value)">
-      <label class="form-label">拼音</label>
-      <input class="form-input" value="${f.pinyin}" placeholder="tù zi" oninput="updateForm('pinyin',this.value)">
-      <div class="meanings-section">
-        <div class="meanings-title">意味</div>
-        ${(f.meanings||[]).map((m,i) => `
-          <div class="meaning-row">
-            <select class="meaning-pos-sel" onchange="updateMeaningPos(${i},this.value)">
-              ${POS_LIST.map(p=>`<option value="${p}" ${m.pos===p?"selected":""}>${p}</option>`).join("")}
-            </select>
-            <input class="meaning-input" value="${m.text}" placeholder="意味を入力" oninput="updateMeaningText(${i},this.value)">
-            <button class="meaning-del" onclick="removeMeaning(${i})">✕</button>
-          </div>`).join("")}
-        <button class="add-meaning-btn" onclick="addMeaning()">＋ 意味を追加</button>
+
+    ${wt === "words" ? `
+      <div class="wordlist-toolbar">
+        <button class="add-btn" onclick="openAdd()">＋ 追加</button>
+        <input class="search-bar" type="search" placeholder="🔍 漢字・拼音・日本語で検索" value="${state.searchQuery}" oninput="state.searchQuery=this.value;render()">
       </div>
-      <label class="form-label-opt">量詞</label>
-      <input class="form-input" value="${f.classifier||""}" placeholder="只・个・本 など" oninput="updateForm('classifier',this.value)">
-      <label class="form-label-opt">メモ</label>
-      <textarea class="form-input" rows="2" placeholder="例文・補足・使い方など" oninput="updateForm('memo',this.value)" style="resize:vertical;line-height:1.5">${f.memo||""}</textarea>
-      <div class="form-row">
-        <button class="form-cancel" onclick="closeAdd()">キャンセル</button>
-        <button class="form-save" onclick="saveWord()">${state.editId!==null?"保存":"追加"}</button>
-      </div>
-    </div>` : ""}
-    ${filtered.length===0 ? `<p style="text-align:center;color:#888;margin-bottom:1rem">${q?"該当する単語がありません":"単語がありません"}</p>` : ""}
-    ${filtered.map(w => {
-      const hm = w.meanings && w.meanings.length > 0;
-      const lm = ALL_MODES.filter(m=>!["classifier","pinyin","example"].includes(m.id)&&getMastery(m.id,w.id)==="learned").map(m=>m.icon).join("");
-      return `
-      <div class="word-card">
-        <div class="word-info">
-          <div class="word-top">
-            <span class="word-zh">${w.chinese}</span>
-            <span class="word-pinyin">${w.pinyin}</span>
-            ${w.classifier?`<span class="word-classifier">量詞: ${w.classifier}</span>`:""}
-            ${lm?`<span class="learned-badge">覚えた ${lm}</span>`:""}
+      ${state.showAdd ? `
+      <div class="form-box">
+        <label class="form-label">中国語（漢字）</label>
+        <input class="form-input" value="${f.chinese}" placeholder="兔子" oninput="updateForm('chinese',this.value)">
+        <label class="form-label">拼音</label>
+        <input class="form-input" value="${f.pinyin}" placeholder="tù zi" oninput="updateForm('pinyin',this.value)">
+        <div class="meanings-section">
+          <div class="meanings-title">意味</div>
+          ${(f.meanings||[]).map((m,i) => `
+            <div class="meaning-row">
+              <select class="meaning-pos-sel" onchange="updateMeaningPos(${i},this.value)">
+                ${POS_LIST.map(p=>`<option value="${p}" ${m.pos===p?"selected":""}>${p}</option>`).join("")}
+              </select>
+              <input class="meaning-input" value="${m.text}" placeholder="意味を入力" oninput="updateMeaningText(${i},this.value)">
+              <button class="meaning-del" onclick="removeMeaning(${i})">✕</button>
+            </div>`).join("")}
+          <button class="add-meaning-btn" onclick="addMeaning()">＋ 意味を追加</button>
+        </div>
+        <label class="form-label-opt">量詞</label>
+        <input class="form-input" value="${f.classifier||""}" placeholder="只・个・本 など" oninput="updateForm('classifier',this.value)">
+        <label class="form-label-opt">メモ</label>
+        <textarea class="form-input" rows="2" placeholder="例文・補足・使い方など" oninput="updateForm('memo',this.value)" style="resize:vertical;line-height:1.5">${f.memo||""}</textarea>
+        <div class="form-row">
+          <button class="form-cancel" onclick="closeAdd()">キャンセル</button>
+          <button class="form-save" onclick="saveWord()">${state.editId!==null?"保存":"追加"}</button>
+        </div>
+      </div>` : ""}
+      ${filtered.length===0 ? `<p style="text-align:center;color:#888;margin-bottom:1rem">${q?"該当する単語がありません":"単語がありません"}</p>` : ""}
+      ${filtered.map(w => {
+        const hm = w.meanings && w.meanings.length > 0;
+        const lm = ALL_MODES.filter(m=>!["classifier","pinyin","example","chengyu"].includes(m.id)&&getMastery(m.id,w.id)==="learned").map(m=>m.icon).join("");
+        return `
+        <div class="word-card">
+          <div class="word-info">
+            <div class="word-top">
+              <span class="word-zh">${w.chinese}</span>
+              <span class="word-pinyin">${w.pinyin}</span>
+              ${w.classifier?`<span class="word-classifier">量詞: ${w.classifier}</span>`:""}
+              ${lm?`<span class="learned-badge">覚えた ${lm}</span>`:""}
+            </div>
+            ${hm?`<div class="word-meanings">${w.meanings.map(m=>`<div class="word-meaning-row"><span class="word-pos-badge">${m.pos}</span><span class="word-meaning-text">${m.text}</span></div>`).join("")}</div>`:`<div style="font-size:13px;color:#888;margin-top:3px">${w.japanese}</div>`}
+            ${w.memo?`<div class="word-memo">${w.memo}</div>`:""}
           </div>
-          ${hm?`<div class="word-meanings">${w.meanings.map(m=>`<div class="word-meaning-row"><span class="word-pos-badge">${m.pos}</span><span class="word-meaning-text">${m.text}</span></div>`).join("")}</div>`:`<div style="font-size:13px;color:#888;margin-top:3px">${w.japanese}</div>`}
-          ${w.memo?`<div class="word-memo">${w.memo}</div>`:""}
+          <div class="word-actions">
+            <button class="icon-btn play-btn" onclick="speak('${w.chinese}')">▶</button>
+            <button class="icon-btn edit-btn" onclick="editWord(${w.id})">編集</button>
+            <button class="icon-btn del-btn" onclick="deleteWord(${w.id})">削除</button>
+          </div>
+        </div>`;
+      }).join("")}
+    ` : ""}
+
+    ${wt === "chengyu" ? `
+      <button class="add-btn-full" onclick="openCyAdd()">＋ 成語を追加</button>
+      ${state.showCyAdd ? `
+      <div class="form-box">
+        <label class="form-label">成語（漢字）</label>
+        <input class="form-input" value="${cy.chinese}" placeholder="一帆风顺" oninput="state.cyForm.chinese=this.value">
+        <label class="form-label">拼音</label>
+        <input class="form-input" value="${cy.pinyin}" placeholder="yī fān fēng shùn" oninput="state.cyForm.pinyin=this.value">
+        <label class="form-label">意味</label>
+        <textarea class="form-input" rows="2" placeholder="万事順調、順風満帆" oninput="state.cyForm.meaning=this.value" style="resize:vertical;line-height:1.5">${cy.meaning}</textarea>
+        <div class="form-row">
+          <button class="form-cancel" onclick="closeCyAdd()">キャンセル</button>
+          <button class="form-save" onclick="saveChengyuWord()">${state.cyEditId!==null?"保存":"追加"}</button>
         </div>
-        <div class="word-actions">
-          <button class="icon-btn play-btn" onclick="speak('${w.chinese}')">▶</button>
-          <button class="icon-btn edit-btn" onclick="editWord(${w.id})">編集</button>
-          <button class="icon-btn del-btn" onclick="deleteWord(${w.id})">削除</button>
+      </div>` : ""}
+      ${state.chengyuWords.length===0?`<p style="text-align:center;color:#888;font-size:13px;margin-bottom:8px">成語の登録はありません</p>`:""}
+      ${[...state.chengyuWords].reverse().map(c=>`
+        <div class="cy-card">
+          <div style="flex:1">
+            <div class="cy-zh">${c.chinese}</div>
+            <div class="cy-pinyin">${c.pinyin}</div>
+            <div class="cy-meaning">${c.meaning}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+            <button onclick="speak('${c.chinese}')" class="icon-btn play-btn">▶</button>
+            <button onclick="editChengyuWord(${c.id})" class="icon-btn edit-btn">編集</button>
+            <button onclick="deleteChengyuWord(${c.id})" class="icon-btn del-btn">削除</button>
+          </div>
+        </div>`).join("")}
+    ` : ""}
+
+    ${wt === "classifier" ? `
+      <button class="add-btn-full" onclick="openCfAdd()">＋ 量詞を追加</button>
+      ${state.showCfAdd ? `
+      <div class="form-box">
+        <label class="form-label">量詞</label>
+        <input class="form-input" value="${state.cfForm.character}" placeholder="只" oninput="state.cfForm.character=this.value">
+        <label class="form-label">拼音</label>
+        <input class="form-input" value="${state.cfForm.pinyin}" placeholder="zhī" oninput="state.cfForm.pinyin=this.value">
+        <div class="form-row">
+          <button class="form-cancel" onclick="state.showCfAdd=false;render()">キャンセル</button>
+          <button class="form-save" onclick="saveClassifierWord()">追加</button>
         </div>
-      </div>`;
-    }).join("")}
-    <div class="wordlist-section-title" style="margin-top:1.5rem">量詞</div>
-    <button class="add-btn-full" onclick="openCfAdd()">＋ 量詞を追加</button>
-    ${state.showCfAdd ? `
-    <div class="form-box">
-      <label class="form-label">量詞</label>
-      <input class="form-input" value="${state.cfForm.character}" placeholder="只" oninput="state.cfForm.character=this.value">
-      <label class="form-label">拼音</label>
-      <input class="form-input" value="${state.cfForm.pinyin}" placeholder="zhī" oninput="state.cfForm.pinyin=this.value">
-      <div class="form-row">
-        <button class="form-cancel" onclick="state.showCfAdd=false;render()">キャンセル</button>
-        <button class="form-save" onclick="saveClassifierWord()">追加</button>
-      </div>
-    </div>` : ""}
-    ${state.classifierWords.length===0?`<p style="text-align:center;color:#888;font-size:13px">量詞専用の登録はありません</p>`:""}
-    ${state.classifierWords.map(c=>`
-      <div class="cf-card">
-        <span class="cf-char">${c.character}</span>
-        <span class="cf-pinyin">${c.pinyin}</span>
-        <span class="cf-badge">量詞専用</span>
-        <button onclick="deleteClassifierWord(${c.id})" style="margin-left:auto" class="icon-btn del-btn">削除</button>
-      </div>`).join("")}
+      </div>` : ""}
+      ${state.classifierWords.length===0?`<p style="text-align:center;color:#888;font-size:13px;margin-bottom:8px">量詞専用の登録はありません</p>`:""}
+      ${state.classifierWords.map(c=>`
+        <div class="cf-card">
+          <span class="cf-char">${c.character}</span>
+          <span class="cf-pinyin">${c.pinyin}</span>
+          <span class="cf-badge">量詞専用</span>
+          <button onclick="deleteClassifierWord(${c.id})" style="margin-left:auto" class="icon-btn del-btn">削除</button>
+        </div>`).join("")}
+    ` : ""}
     ${state.apiKey ? `<span class="apikey-clear" onclick="clearApiKey()">APIキーをリセット</span>` : ""}
   `;
 }
@@ -546,7 +625,11 @@ function flipAndFetchExample() {
   if(state.exampleCache[card.chinese]) { state.exampleData=state.exampleCache[card.chinese]; render(); }
   else fetchExample(card);
 }
-function handleMastery(val) { const card=state.deck[state.cardIdx]; if(!card)return; setMastery(state.mode,card.id,val); render(); }
+function handleMastery(val) {
+  const card=state.deck[state.cardIdx]; if(!card) return;
+  const modeKey = state.mode === "chengyu" ? "chengyu" : state.mode;
+  setMastery(modeKey, card.id, val); render();
+}
 function nextCard() {
   state.cardIdx++;
   if(state.cardIdx>=state.deck.length) buildDeck();
@@ -579,6 +662,30 @@ function deleteClassifierWord(id) {
   if(!confirm("削除しますか？"))return;
   state.classifierWords=state.classifierWords.filter(c=>c.id!==id);
   save("classifierWords",state.classifierWords); buildDeck(); render();
+}
+function openCyAdd() { state.showCyAdd=true; state.cyEditId=null; state.cyForm={chinese:"",pinyin:"",meaning:""}; render(); }
+function closeCyAdd() { state.showCyAdd=false; state.cyEditId=null; render(); }
+function saveChengyuWord() {
+  const {chinese,pinyin,meaning}=state.cyForm;
+  if(!chinese.trim()||!pinyin.trim()||!meaning.trim()) return;
+  if(state.cyEditId!==null) {
+    state.chengyuWords=state.chengyuWords.map(c=>c.id===state.cyEditId?{...c,chinese:chinese.trim(),pinyin:pinyin.trim(),meaning:meaning.trim()}:c);
+    state.cyEditId=null;
+  } else {
+    state.chengyuWords.push({id:Date.now(),chinese:chinese.trim(),pinyin:pinyin.trim(),meaning:meaning.trim()});
+  }
+  save("chengyuWords",state.chengyuWords);
+  state.showCyAdd=false; state.cyForm={chinese:"",pinyin:"",meaning:""}; buildDeck(); render();
+}
+function editChengyuWord(id) {
+  const c=state.chengyuWords.find(c=>c.id===id); if(!c) return;
+  state.cyForm={chinese:c.chinese,pinyin:c.pinyin,meaning:c.meaning};
+  state.cyEditId=id; state.showCyAdd=true; render();
+}
+function deleteChengyuWord(id) {
+  if(!confirm("削除しますか？"))return;
+  state.chengyuWords=state.chengyuWords.filter(c=>c.id!==id);
+  save("chengyuWords",state.chengyuWords); buildDeck(); render();
 }
 function openAdd() { state.showAdd=true; state.editId=null; state.form=newForm(); render(); }
 function closeAdd() { state.showAdd=false; state.editId=null; render(); }
